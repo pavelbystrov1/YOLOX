@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 # Copyright (c) 2014-2021 Megvii Inc. All rights reserved.
+# modified by Pavel Bystrov
 
 import os
 import random
@@ -68,8 +69,8 @@ class Exp(BaseExp):
         # --------------  training config --------------------- #
         # epoch number used for warmup
         self.warmup_epochs = 5
-        # max training epoch
-        self.max_epoch = 300
+        # max training epoch ###modified to train with google colab###
+        self.max_epoch = 50 ##300
         # minimum learning rate during warmup
         self.warmup_lr = 0
         self.min_lr_ratio = 0.05
