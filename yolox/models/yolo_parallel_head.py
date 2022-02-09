@@ -15,10 +15,10 @@ from .network_blocks import BaseConv, DWConv
 
 
 class DecoupledYOLOHead(YOLOXHead):
-"""
-  Decoupled yolox head class derived from YOLOXHead
-  DecoupledYOLOHead parameter reg_convs is not used anymore
-"""
+    """
+      Decoupled yolox head class derived from YOLOXHead
+      DecoupledYOLOHead parameter reg_convs is not used anymore
+    """
     def __init__(
         self,
         num_classes,
