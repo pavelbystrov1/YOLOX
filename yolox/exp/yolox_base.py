@@ -2,6 +2,7 @@
 # -*- coding:utf-8 -*-
 # Copyright (c) 2014-2021 Megvii Inc. All rights reserved.
 # modified by Pavel Bystrov to test parallel Head
+#modified by Pavel Bystrov to use Adam
 
 import os
 import random
@@ -9,6 +10,7 @@ import random
 import torch
 import torch.distributed as dist
 import torch.nn as nn
+import torch.optim.Adam
 
 from .base_exp import BaseExp
 
@@ -70,7 +72,7 @@ class Exp(BaseExp):
         # epoch number used for warmup
         self.warmup_epochs = 5
         # max training epoch ###modified to train with google colab###
-        self.max_epoch = 28 ##300
+        self.max_epoch = 44 ##300
         # minimum learning rate during warmup
         self.warmup_lr = 0
         self.min_lr_ratio = 0.05
@@ -79,7 +81,7 @@ class Exp(BaseExp):
         # name of LRScheduler
         self.scheduler = "yoloxwarmcos"
         # last #epoch to close augmention like mosaic
-        self.no_aug_epochs = 15
+        self.no_aug_epochs = 30
         # apply EMA during training
         self.ema = True
 
@@ -109,7 +111,7 @@ class Exp(BaseExp):
         self.nmsthre = 0.65
 
     def get_model(self):
-        from yolox.models import YOLOX, YOLOPAFPN, YOLOXHead, DecoupledYOLOHead
+        from yolox.models import YOLOX, YOLOPAFPN, YOLOXHead, ParallelYOLOHead
 
         def init_yolo(M):
             for m in M.modules():
@@ -120,7 +122,7 @@ class Exp(BaseExp):
         if getattr(self, "model", None) is None:
             in_channels = [256, 512, 1024]
             backbone = YOLOPAFPN(self.depth, self.width, in_channels=in_channels, act=self.act)
-            head = DecoupledYOLOHead(self.num_classes, width=self.width, in_channels=in_channels, act=self.act) ##YOLOXHead(self.num_classes, self.width, in_channels=in_channels, act=self.act)
+            head = ParallelYOLOHead(self.num_classes, width=self.width, in_channels=in_channels, act=self.act) ##YOLOXHead(self.num_classes, self.width, in_channels=in_channels, act=self.act)
             self.model = YOLOX(backbone, head)
 
         self.model.apply(init_yolo)
@@ -250,8 +252,8 @@ class Exp(BaseExp):
                 elif hasattr(v, "weight") and isinstance(v.weight, nn.Parameter):
                     pg1.append(v.weight)  # apply decay
 
-            optimizer = torch.optim.SGD(
-                pg0, lr=lr, momentum=self.momentum, nesterov=True
+            optimizer = torch.optim.Adam( ##SGD(pg0, lr=lr, momentum=self.momentum, nesterov=True
+                pg0, lr=lr ##, momentum=self.momentum, nesterov=True
             )
             optimizer.add_param_group(
                 {"params": pg1, "weight_decay": self.weight_decay}
