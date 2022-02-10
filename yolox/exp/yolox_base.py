@@ -10,7 +10,7 @@ import random
 import torch
 import torch.distributed as dist
 import torch.nn as nn
-import torch.optim.Adam
+import torch.optim
 
 from .base_exp import BaseExp
 
