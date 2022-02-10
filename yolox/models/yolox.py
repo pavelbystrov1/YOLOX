@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 # Copyright (c) 2014-2021 Megvii Inc. All rights reserved.
+# modified by Pavel Bystrov to test parallel Head
 
 import torch.nn as nn
 
 from .yolo_head import YOLOXHead
 from .yolo_pafpn import YOLOPAFPN
+from .yolo_parallel_head import DecoupledYOLOHead
 
 
 class YOLOX(nn.Module):
@@ -20,7 +22,7 @@ class YOLOX(nn.Module):
         if backbone is None:
             backbone = YOLOPAFPN()
         if head is None:
-            head = YOLOXHead(80)
+            head = DecoupledYOLOHead(80) #YOLOXHead(80)
 
         self.backbone = backbone
         self.head = head

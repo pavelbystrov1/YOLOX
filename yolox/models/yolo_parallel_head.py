@@ -37,8 +37,9 @@ class DecoupledYOLOHead(YOLOXHead):
             activation: activation type for convolution. Defalut value: "silu"
             is_depthwise: whether apply depthwise conv in conv branch. Defalut value: False
         """
-        super(FocalLoss, self).__init__(num_classes, width=width, strides=strides, in_channels=in_channels, act=activation, depthwise=is_depthwise)
+        super().__init__(num_classes, width=width, strides=strides, in_channels=in_channels, act=activation, depthwise=is_depthwise) ##super(DecoupledYOLOHead, self)
         Conv = DWConv if is_depthwise else BaseConv
+        self.reg_convs = ModuleList()
 
         for i in range(len(in_channels)):
             self.stems.append(
@@ -70,7 +71,6 @@ class DecoupledYOLOHead(YOLOXHead):
         self.l1_loss = L1Loss(reduction="none")
         self.bcewithlog_loss = BCEWithLogitsLoss(reduction="none")
         self.iou_loss = IOUloss(reduction="none")
-        self.reg_convs = ModuleList()
 
 
     def forward(self, xin, labels=None, imgs=None):
